@@ -343,13 +343,14 @@ h1{
   .btn{min-width:80px;padding-left:10px;padding-right:10px}
 }
 </style>
+<style> #btn-hint,#btn-demo,#hintBtn,#autoBtn,#btn-reveal,#btn-replay,#sb-next,#next,#newGameBtn,#diff-bar{display:none!important}</style>
 </head>
 <body>
 <canvas id="bg"></canvas>
 <audio id="bgm" src="audio/bgm-suno.mp3" preload="auto" playsinline></audio>
 <div id="welcome">
   <div class="modal">
-    <div id="welcome-logo">项目组办公室</div>
+    <div id="welcome-logo">最强大脑 S14</div>
     <div id="welcome-title">一秒快门</div>
     <div id="welcome-sub">快门只打开一瞬间。记住出现的黑格，快门结束后在棋盘上复原。</div>
     <div id="welcome-demo"></div>
@@ -406,33 +407,7 @@ h1{
   </div>
 </div>
 <script>
-const LEVELS=[
-  {name:'教学 1：完整一秒',n:3,count:2,preview:1900,width:99,time:45,mode:'full',note:'快门先完整亮出图形，结束后点亮相同位置。'},
-  {name:'教学 2：移动快门',n:4,count:3,preview:1800,width:1.75,time:50,mode:'sweep',note:'现在只有快门扫过时能看见目标，记住黑格位置。'},
-  {name:'第 3 关：四格短照',n:4,count:4,preview:1600,width:1.55,time:50,mode:'sweep',note:'同样是 4x4，但快门更窄、更快。'},
-  {name:'第 4 关：四阶快扫',n:4,count:5,preview:1420,width:1.42,time:48,mode:'sweep',note:'黑格更多，优先记大致形状。'},
-  {name:'第 5 关：五阶入口',n:5,count:5,preview:1700,width:1.55,time:58,mode:'sweep',note:'盘面变大，快门稍微放慢，先适应新尺度。'},
-  {name:'第 6 关：五格残影',n:5,count:6,preview:1500,width:1.42,time:56,mode:'sweep',note:'记住相邻黑格的组合。'},
-  {name:'第 7 关：窄缝五阶',n:5,count:7,preview:1320,width:1.30,time:55,mode:'sweep',note:'快门变窄，观察时从左到右跟着扫。'},
-  {name:'第 8 关：五阶短闪',n:5,count:8,preview:1180,width:1.18,time:53,mode:'sweep',note:'速度提升，先记边角，再补中心。'},
-  {name:'第 9 关：六阶入口',n:6,count:7,preview:1680,width:1.48,time:66,mode:'diagonal',note:'盘面升到 6x6，快门改为斜向扫描。'},
-  {name:'第 10 关：六阶残片',n:6,count:8,preview:1480,width:1.36,time:64,mode:'diagonal',note:'斜向快门会让图形分块出现。'},
-  {name:'第 11 关：冷光六阶',n:6,count:9,preview:1300,width:1.24,time:62,mode:'diagonal',note:'黑格数量增加，尽量记成两三组。'},
-  {name:'第 12 关：六阶急闪',n:6,count:10,preview:1140,width:1.14,time:60,mode:'diagonal',note:'同尺寸最终段，快门已经很快。'},
-  {name:'第 13 关：七阶入口',n:7,count:9,preview:1740,width:1.42,time:76,mode:'double',note:'盘面变大，出现双快门，从两侧同时扫。'},
-  {name:'第 14 关：七阶双门',n:7,count:10,preview:1540,width:1.30,time:74,mode:'double',note:'两道快门会打断整体轮廓，记局部。'},
-  {name:'第 15 关：七阶窄门',n:7,count:11,preview:1360,width:1.20,time:72,mode:'double',note:'快门更窄，注意靠边黑格。'},
-  {name:'第 16 关：七阶急门',n:7,count:12,preview:1200,width:1.10,time:70,mode:'double',note:'七阶最终段，速度和数量一起上来。'},
-  {name:'第 17 关：八阶入口',n:8,count:10,preview:1820,width:1.38,time:86,mode:'diagonal',note:'最大盘面登场，先放慢适应 8x8。'},
-  {name:'第 18 关：八阶胶片',n:8,count:12,preview:1600,width:1.26,time:84,mode:'diagonal',note:'黑格分布更散，按区域记忆。'},
-  {name:'第 19 关：八阶短片',n:8,count:14,preview:1400,width:1.16,time:82,mode:'double',note:'双快门叠加大盘面，注意不要多点。'},
-  {name:'第 20 关：一秒终幕',n:8,count:16,preview:1180,width:1.05,time:80,mode:'double',note:'高难阶段：抓轮廓，不要逐格背。'}
-].concat(Array.from({length:79},(_,offset)=>{
-  const n=offset+21;
-  return {name:'第 '+n+' 关：极速残影 '+String(n-20).padStart(2,'0'),n:8,
-    count:14+(n%7),preview:1050-(n%4)*35,width:1.02-(n%3)*.03,time:78,
-    mode:n%2?'double':'diagonal',seed:0x510000+n*7919,note:'高难题：大盘面、窄快门与分散黑格。'};
-}));
+const LEVELS=[{name:'高难挑战',n:8,count:16,preview:1180,width:1.05,time:80,mode:'double',seed:5314120,note:'8×8 盘面，双快门扫描，复原 16 个黑格。'}];
 
 const boardEl=document.getElementById('board');
 const shutterEl=document.getElementById('shutter');
@@ -471,9 +446,9 @@ function rng(seed){
     return ((r^r>>>14)>>>0)/4294967296;
   };
 }
-function shuffle(arr){
+function shuffle(arr,rand=Math.random){
   for(let i=arr.length-1;i>0;i--){
-    const j=Math.floor(Math.random()*(i+1));
+    const j=Math.floor(rand()*(i+1));
     [arr[i],arr[j]]=[arr[j],arr[i]];
   }
   return arr;
@@ -578,7 +553,7 @@ function makeTarget(){
   player=new Array(total).fill(0);
   wrongMask=new Array(total).fill('');
   const rand=rng((level.seed||Date.now())+levelIndex*9973);
-  const cells=shuffle(Array.from({length:total},(_,i)=>i));
+  const cells=shuffle(Array.from({length:total},(_,i)=>i),rand);
   let placed=0;
   for(const i of cells){
     const r=Math.floor(i/level.n),c=i%level.n;
@@ -686,7 +661,7 @@ function startPreview(isReplay){
   phase='preview';
   previewStart=performance.now();
   if(isReplay){replayCount++;misses++;guide('重看快门会计一次失误，专注分会降低。',900);}
-  else guide(levelIndex<2?'教学关：先看，再复原。':'快门开启，跟着扫线记图形。',900);
+  else guide('快门开启，跟着扫线记图形。',900);
   document.getElementById('btn-check').disabled=true;
   document.getElementById('btn-replay').disabled=true;
   sfx(isReplay?'scan':'start');
@@ -706,7 +681,7 @@ function animatePreview(){
     wrongMask=new Array(level.n*level.n).fill('');
     document.getElementById('btn-check').disabled=false;
     document.getElementById('btn-replay').disabled=false;
-    guide(levelIndex===0?'点亮刚才看到的黑格，点齐后自动判定。':levelIndex===1?'按记忆点回快门扫过的黑格，点齐后自动判定。':'按残影复原图像，点齐后自动判定。',1400);
+    guide('按残影复原图像，点齐后自动判定。',1400);
     renderBoard();
   }
 }
@@ -868,7 +843,7 @@ makeTarget();
 renderBoard();
 updateHud();
 </script>
-<script src="../ggame-level-system.js"></script>
+
 <script src="../ggame-exit-control.js"></script>
 </body>
 </html>

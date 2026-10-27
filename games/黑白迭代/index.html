@@ -263,12 +263,13 @@ button:disabled{ opacity:0.3; pointer-events:none; }
     #msg{min-height:12px;font-size:11px;line-height:1;}
   }
 </style>
+<style> #btn-hint,#btn-demo,#hintBtn,#autoBtn,#btn-reveal,#btn-replay,#sb-next,#next,#newGameBtn,#diff-bar{display:none!important}</style>
 </head>
 <body>
 
 <div id="welcome-mask">
   <div id="welcome-card">
-    <div id="welcome-logo">项目组办公室</div>
+    <div id="welcome-logo">最强大脑 S14</div>
     <div id="welcome-title">黑白迭代</div>
     <div id="welcome-sub">简要规则：逐关挑战。点一个格子，它和上下左右一起翻转黑白；把上方盘面拼成下方目标图形 ✨</div>
     <div id="welcome-demo"></div>
@@ -578,50 +579,7 @@ function sizeDefaults(n){
 function level(name,n,opts){
   return Object.assign({name,N:n,tag:n+'×'+n,note:'',timeLimit:120,minPar:1},sizeDefaults(n),opts);
 }
-const LEVELS=[
-  level('教学 1：中心十字',3,{fixed:[[1,1]],timeLimit:90,note:'点中心格，观察十字翻转。'}),
-  level('教学 2：边角回路',3,{fixed:[[0,0],[2,2]],timeLimit:100,note:'角落只影响三个格，先看边界。'}),
-  level('教学 3：两步抵消',4,{fixed:[[1,1],[2,2],[1,2]],timeLimit:125,note:'有些格会被翻两次，黑白会抵消。'}),
-  level('第 4 关：短脉冲',3,{steps:3,minPar:2,seed:104,timeLimit:95,note:'从 3×3 开始连续推进。'}),
-  level('第 5 关：斜线回声',3,{steps:4,minPar:3,seed:125,timeLimit:100}),
-  level('第 6 关：四角校准',3,{steps:5,minPar:3,seed:146,timeLimit:105}),
-  level('第 7 关：小型阵列',4,{steps:4,minPar:3,seed:207,timeLimit:120}),
-  level('第 8 关：边线折返',4,{steps:5,minPar:4,seed:228,timeLimit:125}),
-  level('第 9 关：中心干涉',4,{steps:6,minPar:4,seed:249,timeLimit:135}),
-  level('第 10 关：交叉同步',4,{steps:7,minPar:5,seed:270,timeLimit:145}),
-  level('第 11 关：星门雏形',5,{steps:6,minPar:4,seed:331,timeLimit:165}),
-  level('第 12 关：外环干扰',5,{steps:7,minPar:5,seed:352,timeLimit:175}),
-  level('第 13 关：双核反相',5,{steps:8,minPar:6,seed:373,timeLimit:185}),
-  level('第 14 关：折线矩阵',5,{steps:9,minPar:6,seed:394,timeLimit:195}),
-  level('第 15 关：月面噪点',5,{steps:10,minPar:7,seed:415,timeLimit:205}),
-  level('第 16 关：低轨扰动',5,{steps:11,minPar:8,seed:436,timeLimit:215}),
-  level('第 17 关：六阶入口',6,{steps:8,minPar:6,seed:517,timeLimit:230}),
-  level('第 18 关：横向折叠',6,{steps:9,minPar:7,seed:538,timeLimit:240}),
-  level('第 19 关：纵深回声',6,{steps:10,minPar:8,seed:559,timeLimit:250}),
-  level('第 20 关：矩阵冷启动',6,{steps:11,minPar:8,seed:580,timeLimit:260}),
-  level('第 21 关：双层波纹',6,{steps:12,minPar:9,seed:601,timeLimit:270}),
-  level('第 22 关：中心风暴',6,{steps:13,minPar:10,seed:622,timeLimit:285}),
-  level('第 23 关：深空折返',6,{steps:14,minPar:11,seed:643,timeLimit:300}),
-  level('第 24 关：轨道裂隙',6,{steps:15,minPar:12,seed:664,timeLimit:315}),
-  level('第 25 关：厚层阵列',7,{steps:12,minPar:9,seed:745,timeLimit:330}),
-  level('第 26 关：七阶边界',7,{steps:13,minPar:10,seed:766,timeLimit:345}),
-  level('第 27 关：星尘迷网',7,{steps:14,minPar:11,seed:787,timeLimit:360}),
-  level('第 28 关：暗面折射',7,{steps:15,minPar:12,seed:808,timeLimit:375}),
-  level('第 29 关：反相栈',7,{steps:16,minPar:13,seed:829,timeLimit:390}),
-  level('第 30 关：深层脉冲',7,{steps:17,minPar:14,seed:850,timeLimit:405}),
-  level('第 31 关：长链同步',7,{steps:18,minPar:15,seed:871,timeLimit:420}),
-  level('第 32 关：冷光迷宫',7,{steps:19,minPar:16,seed:892,timeLimit:435}),
-  level('第 33 关：高密度迭代',7,{steps:20,minPar:17,seed:913,timeLimit:450}),
-  level('第 34 关：量子回廊',7,{steps:21,minPar:18,seed:934,timeLimit:465}),
-  level('第 35 关：终端阵列',7,{steps:22,minPar:19,seed:955,timeLimit:480}),
-  level('第 36 关：黑白星核',7,{steps:24,minPar:20,seed:976,timeLimit:510,note:'高难阶段：先找局部结构。'})
-].concat(Array.from({length:63},(_,offset)=>{
-  const n=offset+37;
-  return level('第 '+n+' 关：黑白星核 '+String(n-36).padStart(2,'0'),7,{
-    steps:24+(n%7),minPar:19+(n%5),seed:976+n*97,timeLimit:510,
-    note:'高难题：七阶盘面与不同反相种子。'
-  });
-}));
+const LEVELS=[level('高难挑战',7,{steps:24,minPar:20,seed:976,timeLimit:510,note:'7×7 盘面，推理每次翻转。'})];
 const MAX_LEVEL=LEVELS.length;
 let levelIndex=0,cfg=LEVELS[0];
 let N_=3, board=[], target=[], moves=0, par=0, optimalSet=[];
@@ -1061,7 +1019,7 @@ function launchGame(e){
   else mount();
 })();
 </script>
-<script src="../ggame-level-system.js"></script>
+
 <script src="../ggame-exit-control.js"></script>
 </body>
 </html>

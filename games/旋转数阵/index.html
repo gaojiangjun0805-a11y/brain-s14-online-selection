@@ -966,11 +966,12 @@
   #hubReturnBtn:active{transform:scale(.96);border-color:rgba(46,230,214,.78);background:rgba(18,34,58,.82)}
   @media (max-width:640px){#hubReturnBtn{height:30px;min-width:66px;padding:0 9px;font-size:12px}}
 </style>
+<style> #btn-hint,#btn-demo,#hintBtn,#autoBtn,#btn-reveal,#btn-replay,#sb-next,#next,#newGameBtn,#diff-bar{display:none!important}</style>
 </head>
 <body>
   <div id="welcome-mask">
     <div id="welcome-card">
-      <div id="welcome-logo">项目组办公室</div>
+      <div id="welcome-logo">最强大脑 S14</div>
       <div id="welcome-title">旋转数阵</div>
       <div id="welcome-sub">点击菱形区域，让四个相邻白球顺时针旋转；当上方和值等于下方目标，区域就会点亮。</div>
       <div id="welcome-demo" aria-hidden="true">
@@ -1034,7 +1035,7 @@
       <div class="victory" id="victory">
         <h2>挑战成功</h2>
         <p id="victoryText">所有区域都已变绿。</p>
-        <button class="primary" id="playAgainBtn" type="button">下一关</button>
+        <button class="primary" id="playAgainBtn" type="button">重做本题</button>
       </div>
     </section>
 
@@ -1107,7 +1108,7 @@
     let positionTokens = [];
     let targets = [];
     let solution = [];
-    let currentLevel = 1;
+    let currentLevel = 12;
     let currentPuzzle = null;
     let history = [];
     let startedAt = null;
@@ -1250,7 +1251,7 @@
     }
 
     function loadLevel(level) {
-      currentLevel = Math.max(1,Math.min(99,level));
+      currentLevel = 12;
       currentPuzzle = createLevel(currentLevel);
       resetGame();
     }
@@ -1483,7 +1484,7 @@
       });
 
       solvedCountEl.textContent = `${solved}/9`;
-      levelLabelEl.textContent = String(currentLevel);
+      levelLabelEl.textContent = "1";
       limitLabelEl.textContent = `≤${currentPuzzle.limit}`;
       referenceMovesEl.textContent = String(solution.length);
       progressFill.style.width = `${(solved / 9) * 100}%`;
@@ -1579,7 +1580,7 @@
       busy = true;
       playTone("win");
       const seconds = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0;
-      victoryText.textContent = `第 ${currentLevel} 关完成，用时 ${formatTime(seconds)}，共 ${history.length} 步。下一关和值上限 ≤${levelLimit(currentLevel + 1)}。`;
+      victoryText.textContent = `挑战完成，用时 ${formatTime(seconds)}，共 ${history.length} 步。`;
       victory.classList.add("show");
     }
 
@@ -1598,7 +1599,7 @@
       autoPlaying = false;
       timerEl.textContent = "00:00";
       victory.classList.remove("show");
-      hintLine.textContent = `第 ${currentLevel} 关：所有区域和值都在 ${currentPuzzle.limit} 以内。`;
+      hintLine.textContent = `让每个区域的和值都达到目标。`;
       renderBoard();
     }
 
@@ -1706,11 +1707,11 @@
 
     document.getElementById("resetBtn").addEventListener("click", () => resetGame());
     document.getElementById("newGameBtn").addEventListener("click", () => {
-      loadLevel(Math.min(99,currentLevel + 1));
+      loadLevel(12);
       showToast(`进入第 ${currentLevel} 关，和值上限 ≤${currentPuzzle.limit}。`);
     });
     document.getElementById("playAgainBtn").addEventListener("click", () => {
-      loadLevel(Math.min(99,currentLevel + 1));
+      loadLevel(12);
     });
     document.getElementById("undoBtn").addEventListener("click", () => {
       if (!history.length) return;
@@ -1819,7 +1820,7 @@
   else mount();
 })();
 </script>
-<script src="../ggame-level-system.js"></script>
+
 <script src="../ggame-exit-control.js"></script>
 </body>
 </html>

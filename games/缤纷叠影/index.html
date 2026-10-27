@@ -209,12 +209,13 @@ button:disabled{ opacity:0.3; pointer-events:none; }
   #hubReturnBtn:active{transform:scale(.96);border-color:rgba(46,230,214,.78);background:rgba(18,34,58,.82)}
   @media (max-width:640px){#hubReturnBtn{height:30px;min-width:66px;padding:0 9px;font-size:12px}}
 </style>
+<style> #btn-hint,#btn-demo,#hintBtn,#autoBtn,#btn-reveal,#btn-replay,#sb-next,#next,#newGameBtn,#diff-bar{display:none!important}</style>
 </head>
 <body>
 
 <div id="welcome-mask">
   <div id="welcome-card">
-    <div id="welcome-logo">项目组办公室</div>
+    <div id="welcome-logo">最强大脑 S14</div>
     <div id="welcome-title">缤 纷 叠 影</div>
     <div id="welcome-sub">沿折痕把一侧「翻折」到另一侧，上层颜色盖住下层。<br>多次折叠，把左边盘面拼成右边的目标图 ✨<br><span style="color:#9affd8">拖动盘面即可折叠</span></div>
     <canvas id="welcome-demo" width="180" height="90"></canvas>
@@ -257,10 +258,10 @@ button:disabled{ opacity:0.3; pointer-events:none; }
     </div>
   </div>
 
-  <div id="hintline">👆 抓住一角往折痕方向拖动 · 起点那侧被翻折覆盖到对面 · 卡住就点 💡提示</div>
+  <div id="hintline">👆 抓住一角往折痕方向拖动 · 起点那侧被翻折覆盖到对面</div>
 
   <div id="buttons">
-    <button id="btn-new">🎮 新关卡</button>
+    <button id="btn-new">↻ 重做本题</button>
     <button id="btn-undo">↶ 撤销</button>
     <button id="btn-reset">↺ 重置</button>
     <button id="btn-hint">💡 提示</button>
@@ -283,7 +284,7 @@ button:disabled{ opacity:0.3; pointer-events:none; }
     <div id="settle-best"></div>
     <div id="settle-btns">
       <button id="sb-again">🔄 再来</button>
-      <button id="sb-next">⬆ 更难</button>
+      <button id="sb-next">下一关</button>
       <button id="sb-close">✕</button>
     </div>
   </div>
@@ -502,10 +503,10 @@ const DIFF_CONFIG={
   2:{N:3, colors:3, K:2, allowDiag:false, timeLimit:150, base:1500, timeRate:9},
   3:{N:4, colors:3, K:2, allowDiag:false, timeLimit:190, base:2200, timeRate:8},
   4:{N:4, colors:4, K:3, allowDiag:true,  timeLimit:230, base:3000, timeRate:8},
-  5:{N:5, colors:4, K:4, allowDiag:true,  timeLimit:290, base:4000, timeRate:7},
+  5:{N:5, colors:4, K:6, allowDiag:true,  timeLimit:290, base:4000, timeRate:7},
 };
 const MAX_DIFF=5;
-let cfg=DIFF_CONFIG[1], curDiff=1;
+let cfg=DIFF_CONFIG[5], curDiff=5;
 let N_=0, K_=0;
 let board=null, target=null, initial=null;   // Uint8Array, 长度 N*N*4
 let boardStack=[];                            // 撤销栈
@@ -853,7 +854,8 @@ function newGame(){
   demoUsed=false; hintCount=0; demoPlaying=false; animating=false; dragP0=null;
   msgEl.textContent='';
   document.getElementById('settle-mask').classList.remove('show');
-  genLevel();
+  const savedRandom=Math.random;
+  try { let seed=0x53483135; Math.random=()=>{ seed=(Math.imul(seed,1664525)+1013904223)>>>0; return seed/4294967296; }; genLevel(); } finally { Math.random=savedRandom; }
   render(); refreshUndo();
   startTimer();
 }
@@ -1107,7 +1109,7 @@ function launchGame(e){
   else mount();
 })();
 </script>
-<script src="../ggame-level-system.js"></script>
+
 <script src="../ggame-exit-control.js"></script>
 </body>
 </html>
