@@ -1,0 +1,1825 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>旋转数阵</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07091a;
+      --panel: linear-gradient(145deg, rgba(255,255,255,.075), rgba(255,255,255,.035));
+      --panel-flat: rgba(255, 255, 255, .06);
+      --panel-strong: rgba(13, 20, 48, .94);
+      --line: rgba(157, 226, 255, .18);
+      --line-strong: rgba(157, 226, 255, .42);
+      --text: #eaf0ff;
+      --muted: #8ea2d6;
+      --red: #f87171;
+      --green: #4ade80;
+      --grey: #8f98aa;
+      --ink: #09101a;
+      --amber: #ffe08a;
+      --blue: #9de2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    body {
+      min-height: 100dvh;
+      overflow: hidden;
+      color: var(--text);
+      overscroll-behavior: none;
+      font-family: "Nunito", "Microsoft YaHei", ui-sans-serif, system-ui, sans-serif;
+      background: radial-gradient(ellipse at 20% 20%, #1b2f5e 0%, #0d1430 45%, #07091a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .28;
+      background-image:
+        radial-gradient(circle at 24% 18%, rgba(157, 226, 255, .24), transparent 26%),
+        radial-gradient(circle at 78% 72%, rgba(201, 184, 255, .14), transparent 24%),
+        linear-gradient(rgba(157, 226, 255, .07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(157, 226, 255, .07) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 58px 58px, 58px 58px;
+      mask-image: radial-gradient(circle at center, black 0 62%, transparent 88%);
+    }
+
+    .app {
+      display: grid;
+      grid-template-areas:
+        "brand"
+        "metrics"
+        "board"
+        "progress"
+        "tools"
+        "hint";
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+      gap: 7px;
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      height: 100dvh;
+      min-height: 0;
+      padding: max(6px, env(safe-area-inset-top)) 10px max(6px, env(safe-area-inset-bottom));
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    .side {
+      display: contents;
+    }
+
+    .status {
+      display: none;
+    }
+
+    .brand {
+      grid-area: brand;
+      text-align: center;
+      padding: 0 6px 2px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+
+    h1 {
+      font-size: clamp(1.35rem, 6vw, 2rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 6px;
+      background: linear-gradient(135deg, #9de2ff, #7aa2ff, #c9b8ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 14px rgba(122, 162, 255, .42));
+    }
+
+    .subline {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: clamp(.58rem, 2.2vw, .72rem);
+      line-height: 1.25;
+      letter-spacing: 1.5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .metrics {
+      grid-area: metrics;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      width: 100%;
+      padding: 9px 10px 10px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      box-shadow: 0 10px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08);
+    }
+
+    .metric,
+    .toolbox,
+    .legend,
+    .history,
+    .victory {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel);
+      box-shadow: 0 10px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08);
+      backdrop-filter: blur(16px);
+    }
+
+    .metric {
+      min-height: 44px;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      text-align: center;
+      backdrop-filter: none;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .7px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(18px, 5vw, 24px);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+    }
+
+    .toolbox,
+    .legend,
+    .history {
+      padding: 14px;
+    }
+
+    .toolbox {
+      grid-area: tools;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 5px;
+      padding: 6px;
+    }
+
+    button {
+      appearance: none;
+      min-height: 30px;
+      border: 0;
+      border-radius: 999px;
+      color: var(--text);
+      background: linear-gradient(135deg, #64748b, #4b5563);
+      font: inherit;
+      font-weight: 700;
+      font-size: clamp(.66rem, 2.6vw, .78rem);
+      letter-spacing: 0;
+      cursor: pointer;
+      box-shadow: 0 3px 12px rgba(0,0,0,.28);
+      touch-action: manipulation;
+      transition: transform .14s cubic-bezier(.34,1.56,.64,1), filter .14s ease, opacity .16s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px) scale(1.02);
+      filter: brightness(1.08);
+    }
+
+    button:active {
+      transform: scale(.94);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .48;
+      transform: none;
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #60a5fa, #3b6aed);
+      color: #fff;
+    }
+
+    #resetBtn {
+      background: linear-gradient(135deg, #64748b, #4b5563);
+    }
+
+    #undoBtn {
+      background: linear-gradient(135deg, #334155, #1f2937);
+    }
+
+    #hintBtn {
+      background: linear-gradient(135deg, #ffe08a, #f59e0b);
+      color: #1a1a2e;
+    }
+
+    #autoBtn {
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+    }
+
+    #soundBtn {
+      background: linear-gradient(135deg, #a78bfa, #7c3aed);
+    }
+
+    .board-shell {
+      grid-area: board;
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      min-height: 0;
+      padding: 10px;
+    }
+
+    .board {
+      position: relative;
+      width: min(94vw, calc(100dvh - 220px), 430px);
+      max-width: 100%;
+      min-width: 0;
+      aspect-ratio: 1 / 1;
+      user-select: none;
+      touch-action: manipulation;
+      border-radius: 18px;
+      border: 2px solid rgba(255,255,255,.08);
+      background:
+        rgba(255,255,255,.04),
+        repeating-linear-gradient(0deg, transparent 0 56px, rgba(157,226,255,.055) 57px 58px),
+        repeating-linear-gradient(90deg, transparent 0 56px, rgba(157,226,255,.055) 57px 58px);
+      box-shadow:
+        0 0 50px rgba(59,106,237,.13),
+        0 16px 50px rgba(0,0,0,.34),
+        inset 0 1px 0 rgba(255,255,255,.1);
+    }
+
+    .board::before,
+    .board::after {
+      content: "";
+      position: absolute;
+      inset: 8% 13%;
+      pointer-events: none;
+      border: 1px solid rgba(66, 182, 246, .07);
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+    }
+
+    .board::after {
+      inset: 18% 24%;
+      opacity: .7;
+    }
+
+    .pad {
+      position: absolute;
+      width: 13.8%;
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border: 0;
+      padding: 0;
+      background: transparent;
+      filter: drop-shadow(0 9px 16px rgba(0, 0, 0, .4));
+      z-index: 3;
+    }
+
+    .pad:hover {
+      transform: translate(-50%, calc(-50% - 2px));
+      background: transparent;
+    }
+
+    .pad:active {
+      transform: translate(-50%, -50%) scale(.98);
+    }
+
+    .diamond {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,.14);
+      background: rgba(115, 125, 135, .86);
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.22);
+    }
+
+    .diamond::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 2px;
+      transform: translateY(-1px);
+      background: rgba(5, 10, 16, .64);
+      box-shadow: 0 0 10px rgba(255, 255, 255, .14);
+      z-index: 2;
+    }
+
+    .live-half,
+    .goal-half {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 50%;
+    }
+
+    .live-half {
+      top: 0;
+      background: linear-gradient(135deg, #fb7185, #ef4444);
+      transition: background .2s ease, box-shadow .2s ease;
+    }
+
+    .goal-half {
+      bottom: 0;
+      background: linear-gradient(135deg, #a8b0bf, #747d8d);
+    }
+
+    .pad.solved .live-half {
+      background: linear-gradient(135deg, #86efac, #22c55e);
+      box-shadow: 0 0 28px rgba(74,222,128,.46);
+    }
+
+    .pad.flash .diamond {
+      animation: diamondFlash .28s ease;
+    }
+
+    @keyframes diamondFlash {
+      0% { filter: brightness(1.8); }
+      100% { filter: brightness(1); }
+    }
+
+    .pad-text {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      place-items: center;
+      color: #061018;
+      font-weight: 900;
+      line-height: 1;
+      pointer-events: none;
+      z-index: 2;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pad-text span {
+      display: grid;
+      place-items: center;
+      min-width: 100%;
+      min-height: 100%;
+      font-size: clamp(17px, 2.25vw, 28px);
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .2);
+    }
+
+    .pad-text .target {
+      padding-top: 5%;
+      color: rgba(5, 10, 16, .78);
+    }
+
+    .ball {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 8.25%;
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      z-index: 5;
+      color: #141922;
+      font-size: clamp(15px, 1.95vw, 25px);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+      background: linear-gradient(135deg, #f4f7ff, #d6def0);
+      box-shadow:
+        0 3px 8px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.8);
+      transition: left .28s cubic-bezier(.2, .78, .2, 1), top .28s cubic-bezier(.2, .78, .2, 1), transform .2s ease;
+    }
+
+    .ball.moving {
+      transform: translate(-50%, -50%) scale(1.08);
+      box-shadow:
+        0 0 0 5px rgba(96,165,250,.18),
+        0 12px 24px rgba(0,0,0,.42),
+        inset 0 1px 0 rgba(255,255,255,.85);
+    }
+
+    .ring {
+      position: absolute;
+      width: 20.7%;
+      aspect-ratio: 1 / 1;
+      transform: translate(-50%, -50%);
+      border: 1px solid rgba(92, 211, 255, .1);
+      clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .legend h2,
+    .history h2 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .swatch {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      border-radius: 4px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16);
+    }
+
+    .swatch.red { background: var(--red); }
+    .swatch.green { background: var(--green); }
+    .swatch.grey { background: var(--grey); }
+    .swatch.ball-dot {
+      border-radius: 999px;
+      background: #f7f9fc;
+    }
+
+    .history-list {
+      display: flex;
+      align-content: flex-start;
+      flex-wrap: wrap;
+      gap: 6px;
+      min-height: 110px;
+      max-height: 210px;
+      overflow: auto;
+      padding-right: 2px;
+    }
+
+    .move-chip {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      color: #07121c;
+      font-size: 13px;
+      font-weight: 900;
+      background: var(--amber);
+      box-shadow: 0 6px 13px rgba(0, 0, 0, .24);
+    }
+
+    .empty-history {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .progress {
+      grid-area: progress;
+      height: 6px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .08);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #60a5fa, #4ade80);
+      transition: width .25s ease;
+    }
+
+    .hint-line {
+      grid-area: hint;
+      min-height: 31px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 224, 138, .24);
+      border-radius: 14px;
+      color: #ffe5a7;
+      background: rgba(255, 224, 138, .08);
+      font-size: clamp(.72rem, 2.8vw, .84rem);
+      line-height: 1.2;
+      letter-spacing: .5px;
+      text-align: center;
+      text-shadow: 0 0 10px rgba(255,224,138,.4);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .victory {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(390px, calc(100% - 28px));
+      transform: translate(-50%, -50%);
+      padding: 26px 22px 22px;
+      z-index: 20;
+      text-align: center;
+      background: linear-gradient(160deg, #15224a, #0d1430);
+      border: 2px solid #7aa2ff;
+      border-radius: 26px;
+      box-shadow: 0 0 70px rgba(59,106,237,.47), 0 24px 70px rgba(0,0,0,.68);
+    }
+
+    .victory.show {
+      display: block;
+      animation: pop .25s ease;
+    }
+
+    @keyframes pop {
+      from { transform: translate(-50%, -50%) scale(.95); opacity: 0; }
+      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+
+    .victory h2 {
+      margin: 0;
+      font-size: 30px;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #ffe08a, #fb923c, #c9b8ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .victory p {
+      margin: 12px 0 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .pad-index {
+      position: absolute;
+      right: -8px;
+      top: -8px;
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(8, 12, 29, .94);
+      border: 1px solid rgba(157, 226, 255, .28);
+      font-size: 12px;
+      font-weight: 850;
+      z-index: 3;
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--text);
+      background: rgba(8, 12, 29, .9);
+      border: 1px solid rgba(157, 226, 255, .28);
+      box-shadow: 0 16px 38px rgba(0, 0, 0, .38);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      z-index: 30;
+      font-size: 13px;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    #welcome-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(ellipse at 50% 30%, #16224d, #080c1d 70%);
+      transition: opacity .5s ease;
+    }
+
+    #welcome-mask.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #welcome-card {
+      width: min(100%, 460px);
+      text-align: center;
+      padding: 0 24px;
+      animation: wcIn .6s ease both;
+    }
+
+    @keyframes wcIn {
+      from { opacity: 0; transform: translateY(24px) scale(.96); }
+      to { opacity: 1; transform: none; }
+    }
+
+    #welcome-logo {
+      margin-bottom: 6px;
+      font-size: clamp(46px, 13vw, 88px);
+      font-weight: 900;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #9de2ff, #60a5fa, #c9b8ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 4px 24px rgba(96,165,250,.4));
+    }
+
+    #welcome-title {
+      margin-bottom: 14px;
+      color: #e8ecff;
+      font-size: clamp(20px, 5vw, 30px);
+      font-weight: 700;
+    }
+
+    #welcome-sub {
+      max-width: 430px;
+      margin: 0 auto 22px;
+      color: #9aa6d6;
+      font-size: clamp(13px, 3.4vw, 16px);
+      line-height: 1.7;
+    }
+
+    #welcome-demo {
+      position: relative;
+      width: 150px;
+      height: 106px;
+      margin: 0 auto 30px;
+    }
+
+    .demo-ball {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      transform: translate(-50%, -50%);
+      border-radius: 999px;
+      color: #10162b;
+      background: linear-gradient(135deg, #f4f7ff, #d6def0);
+      box-shadow: 0 3px 8px rgba(0,0,0,.34);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .demo-diamond {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 58px;
+      height: 58px;
+      transform: translate(-50%, -50%);
+      clip-path: polygon(50% 0,100% 50%,50% 100%,0 50%);
+      background: linear-gradient(to bottom, #fb7185 0 50%, #8f98aa 50% 100%);
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: 0 0 22px rgba(122,162,255,.24);
+      animation: demoPulse 1.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes demoPulse {
+      from { filter: brightness(.95); transform: translate(-50%, -50%) scale(.95); }
+      to { filter: brightness(1.2); transform: translate(-50%, -50%) scale(1.06); }
+    }
+
+    #welcome-start {
+      cursor: pointer;
+      border: 0;
+      border-radius: 999px;
+      padding: 15px 54px;
+      color: #08142a;
+      background: linear-gradient(135deg, #9de2ff, #3b82f6);
+      box-shadow: 0 8px 32px rgba(59,130,246,.5);
+      font-size: clamp(18px, 4.6vw, 22px);
+      font-weight: 800;
+      animation: wcPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes wcPulse {
+      0%, 100% { box-shadow: 0 8px 32px rgba(59,130,246,.5); }
+      50% { box-shadow: 0 8px 44px rgba(59,130,246,.85); }
+    }
+
+    @media (max-width: 1050px) {
+      .app {
+        grid-template-areas:
+          "brand"
+          "metrics"
+          "board"
+          "progress"
+          "tools"
+          "hint";
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: auto auto minmax(0, 1fr) auto auto auto;
+        gap: 8px;
+        height: 100vh;
+        height: 100dvh;
+        min-height: 0;
+        padding: 10px;
+      }
+
+      .side {
+        display: contents;
+      }
+
+      .status {
+        display: none;
+      }
+
+      .brand {
+        grid-area: brand;
+        min-height: 0;
+        padding: 10px 12px;
+      }
+
+      h1 {
+        font-size: clamp(22px, 5.4vw, 34px);
+      }
+
+      .subline {
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 1.35;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .metrics {
+        grid-area: metrics;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .metric {
+        min-height: 48px;
+        padding: 7px 8px;
+      }
+
+      .metric span {
+        font-size: 10px;
+      }
+
+      .metric strong {
+        margin-top: 4px;
+        font-size: clamp(18px, 3.4vw, 24px);
+      }
+
+      .board-shell {
+        grid-area: board;
+        padding: 0;
+        overflow: hidden;
+      }
+
+      .board {
+        width: min(92vw, calc(100dvh - 250px), 760px);
+        min-width: 0;
+        max-width: 100%;
+        max-height: 100%;
+      }
+
+      .progress {
+        grid-area: progress;
+        height: 7px;
+      }
+
+      .toolbox {
+        grid-area: tools;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 5px;
+        padding: 6px;
+      }
+
+      button {
+        min-height: 30px;
+        font-size: 12px;
+      }
+
+      .hint-line {
+        grid-area: hint;
+        min-height: 0;
+        padding: 8px 10px;
+        font-size: 12px;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .app {
+        padding: max(6px, env(safe-area-inset-top)) 8px max(6px, env(safe-area-inset-bottom));
+        gap: 6px;
+      }
+
+      .brand {
+        padding: 9px 11px;
+      }
+
+      .subline {
+        display: none;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .metric {
+        min-height: 43px;
+        padding: 6px 7px;
+      }
+
+      .metric strong {
+        font-size: clamp(17px, 5.1vw, 22px);
+      }
+
+      .board {
+        width: min(94vw, calc(100dvh - 224px));
+      }
+
+      .pad {
+        width: 16%;
+      }
+
+      .ball {
+        width: 9.8%;
+        font-size: clamp(12px, 4.1vw, 18px);
+      }
+
+      .pad-text span {
+        font-size: clamp(13px, 4.7vw, 20px);
+      }
+
+      .pad-index {
+        width: 19px;
+        height: 19px;
+        font-size: 11px;
+      }
+    }
+
+    @media (max-height: 720px) and (max-width: 1050px) {
+      .brand {
+        display: none;
+      }
+
+      .hint-line {
+        display: none;
+      }
+
+      .app {
+        grid-template-areas:
+          "metrics"
+          "board"
+          "progress"
+          "tools";
+        grid-template-rows: auto minmax(0, 1fr) auto auto;
+      }
+
+      .board {
+        width: min(94vw, calc(100dvh - 128px));
+      }
+    }
+  </style>
+<style id="touchGuardStyle">
+  html, body, body *{
+    -webkit-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none;
+  }
+  img, svg, canvas{
+    -webkit-user-drag:none;
+    user-drag:none;
+  }
+  input, textarea, [contenteditable="true"]{
+    -webkit-user-select:text;
+    user-select:text;
+    -webkit-touch-callout:default;
+  }
+</style>
+<style id="hubReturnStyle">
+  #hubReturnBtn{
+    position:fixed;
+    left:max(10px, env(safe-area-inset-left));
+    top:max(10px, env(safe-area-inset-top));
+    z-index:2147483000;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:74px;
+    height:34px;
+    padding:0 12px;
+    border-radius:999px;
+    border:1px solid rgba(159,216,255,.48);
+    background:rgba(6,12,24,.74);
+    color:#f3f7ff;
+    box-shadow:0 10px 30px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.12);
+    -webkit-backdrop-filter:blur(12px);
+    backdrop-filter:blur(12px);
+    font:900 13px/1 "PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+    letter-spacing:0;
+    text-decoration:none;
+    pointer-events:auto;
+    -webkit-user-select:none;
+    user-select:none;
+    -webkit-touch-callout:none;
+    transition:transform .12s ease, border-color .16s ease, background .16s ease;
+  }
+  #hubReturnBtn:active{transform:scale(.96);border-color:rgba(46,230,214,.78);background:rgba(18,34,58,.82)}
+  @media (max-width:640px){#hubReturnBtn{height:30px;min-width:66px;padding:0 9px;font-size:12px}}
+</style>
+</head>
+<body>
+  <div id="welcome-mask">
+    <div id="welcome-card">
+      <div id="welcome-logo">项目组办公室</div>
+      <div id="welcome-title">旋转数阵</div>
+      <div id="welcome-sub">点击菱形区域，让四个相邻白球顺时针旋转；当上方和值等于下方目标，区域就会点亮。</div>
+      <div id="welcome-demo" aria-hidden="true">
+        <span class="demo-diamond"></span>
+        <span class="demo-ball" style="left:50%;top:8%;">1</span>
+        <span class="demo-ball" style="left:18%;top:50%;">0</span>
+        <span class="demo-ball" style="left:82%;top:50%;">2</span>
+        <span class="demo-ball" style="left:50%;top:92%;">1</span>
+      </div>
+      <button id="welcome-start" type="button">开始游戏</button>
+    </div>
+  </div>
+  <main class="app">
+    <section class="side" aria-label="游戏信息">
+      <div class="brand">
+        <h1>旋 转 数 阵</h1>
+        <p class="subline">逐关推进 · 旋转小球 · 对齐目标</p>
+      </div>
+      <div class="metrics">
+        <div class="metric">
+          <span>步数</span>
+          <strong id="moveCount">0</strong>
+        </div>
+        <div class="metric">
+          <span>用时</span>
+          <strong id="timer">00:00</strong>
+        </div>
+        <div class="metric">
+          <span>完成</span>
+          <strong id="solvedCount">0/9</strong>
+        </div>
+        <div class="metric">
+          <span>关卡</span>
+          <strong id="levelLabel">1</strong>
+        </div>
+        <div class="metric">
+          <span>和值上限</span>
+          <strong id="limitLabel">≤5</strong>
+        </div>
+        <div class="metric">
+          <span>参考步数</span>
+          <strong id="referenceMoves">0</strong>
+        </div>
+      </div>
+      <div class="progress" aria-label="完成进度">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="toolbox" aria-label="控制按钮">
+        <button class="primary" id="newGameBtn" type="button" hidden>下一关</button>
+        <button id="resetBtn" type="button">重置</button>
+        <button id="undoBtn" type="button">撤销</button>
+        <button id="hintBtn" type="button">提示</button>
+        <button id="autoBtn" type="button">演示</button>
+        <button id="soundBtn" type="button">音乐</button>
+      </div>
+      <div class="hint-line" id="hintLine">提示会根据当前棋盘寻找下一步，卡住时可以点一下。</div>
+    </section>
+
+    <section class="board-shell" aria-label="旋转棋盘">
+      <div class="board" id="board"></div>
+      <div class="victory" id="victory">
+        <h2>挑战成功</h2>
+        <p id="victoryText">所有区域都已变绿。</p>
+        <button class="primary" id="playAgainBtn" type="button">下一关</button>
+      </div>
+    </section>
+
+    <section class="status" aria-label="状态说明">
+      <div class="legend">
+        <h2>图例</h2>
+        <div class="legend-row"><span class="swatch red"></span><span>当前和值未达目标</span></div>
+        <div class="legend-row"><span class="swatch green"></span><span>当前和值等于目标</span></div>
+        <div class="legend-row"><span class="swatch grey"></span><span>灰色数字是目标值</span></div>
+        <div class="legend-row"><span class="swatch ball-dot"></span><span>白球数字会随旋转移动</span></div>
+      </div>
+      <div class="history">
+        <h2>操作记录</h2>
+        <div class="history-list" id="historyList">
+          <span class="empty-history">还没有旋转。</span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const board = document.getElementById("board");
+    const moveCountEl = document.getElementById("moveCount");
+    const timerEl = document.getElementById("timer");
+    const solvedCountEl = document.getElementById("solvedCount");
+    const levelLabelEl = document.getElementById("levelLabel");
+    const limitLabelEl = document.getElementById("limitLabel");
+    const referenceMovesEl = document.getElementById("referenceMoves");
+    const progressFill = document.getElementById("progressFill");
+    const historyList = document.getElementById("historyList");
+    const victory = document.getElementById("victory");
+    const victoryText = document.getElementById("victoryText");
+    const hintLine = document.getElementById("hintLine");
+    const toast = document.getElementById("toast");
+    const welcomeMask = document.getElementById("welcome-mask");
+    const welcomeStart = document.getElementById("welcome-start");
+
+    const BGM_URL = "audio/game-music.mp3";
+    const LEVEL_STEP = 5;
+    const gridPoints = [
+      [3, 0], [2, 1], [4, 1],
+      [1, 2], [3, 2], [5, 2],
+      [0, 3], [2, 3], [4, 3], [6, 3],
+      [1, 4], [3, 4], [5, 4],
+      [2, 5], [4, 5],
+      [3, 6]
+    ];
+
+    const padPoints = [
+      [3, 1], [2, 2], [4, 2],
+      [1, 3], [3, 3], [5, 3],
+      [2, 4], [4, 4],
+      [3, 5]
+    ];
+
+    const cycles = [
+      [0, 2, 4, 1],
+      [1, 4, 7, 3],
+      [2, 5, 8, 4],
+      [3, 7, 10, 6],
+      [4, 8, 11, 7],
+      [5, 9, 12, 8],
+      [7, 11, 13, 10],
+      [8, 12, 14, 11],
+      [11, 14, 15, 13]
+    ];
+
+    let tokens = [];
+    let positionTokens = [];
+    let targets = [];
+    let solution = [];
+    let currentLevel = 1;
+    let currentPuzzle = null;
+    let history = [];
+    let startedAt = null;
+    let timerId = null;
+    let busy = false;
+    let soundOn = true;
+    let audioContext = null;
+    let bgmAudio = null;
+    let bgmStarted = false;
+    let autoPlaying = false;
+    let toastId = null;
+
+    function levelLimit(level) {
+      return level * LEVEL_STEP;
+    }
+
+    function seededRandom(seed) {
+      let value = seed >>> 0;
+      return () => {
+        value += 0x6d2b79f5;
+        let result = value;
+        result = Math.imul(result ^ (result >>> 15), result | 1);
+        result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
+        return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function randomInt(rng, max) {
+      return Math.floor(rng() * max);
+    }
+
+    function topFourSum(values) {
+      return values.slice().sort((a, b) => b - a).slice(0, 4).reduce((total, value) => total + value, 0);
+    }
+
+    function shuffle(values, rng) {
+      const result = values.slice();
+      for (let index = result.length - 1; index > 0; index -= 1) {
+        const swapIndex = randomInt(rng, index + 1);
+        [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+      }
+      return result;
+    }
+
+    function makeLevelValues(limit, rng) {
+      let values = Array.from({ length: 16 }, () => 0);
+      const nonZeroCount = Math.min(16, 7 + Math.ceil(limit / LEVEL_STEP) * 2);
+      const positions = shuffle(Array.from({ length: 16 }, (_, index) => index), rng);
+      const activePositions = positions.slice(0, nonZeroCount);
+      const maxBallValue = Math.max(2, Math.ceil(limit * .5));
+      const attempts = 150 + limit * 28;
+
+      activePositions.forEach((position) => {
+        values[position] = 1;
+      });
+
+      for (let attempt = 0; attempt < attempts; attempt += 1) {
+        const index = activePositions[randomInt(rng, activePositions.length)];
+        const candidate = values.slice();
+        candidate[index] += 1;
+        if (candidate[index] <= maxBallValue && topFourSum(candidate) <= limit) {
+          values = candidate;
+        }
+      }
+
+      return shuffle(values, rng);
+    }
+
+    function makeSolution(level, rng) {
+      const length = Math.min(6 + level * 2, 30);
+      const moves = [];
+
+      while (moves.length < length) {
+        const move = randomInt(rng, cycles.length);
+        if (moves[moves.length - 1] === move) continue;
+        moves.push(move);
+      }
+
+      return moves;
+    }
+
+    function applyMoveToPositions(state, move) {
+      const next = state.slice();
+      const [north, east, south, west] = cycles[move];
+      next[east] = state[north];
+      next[south] = state[east];
+      next[west] = state[south];
+      next[north] = state[west];
+      return next;
+    }
+
+    function applyInverseMoveToPositions(state, move) {
+      const next = state.slice();
+      const [north, east, south, west] = cycles[move];
+      next[north] = state[east];
+      next[east] = state[south];
+      next[south] = state[west];
+      next[west] = state[north];
+      return next;
+    }
+
+    function sumsForState(values, state) {
+      return cycles.map((cycle) => cycle.reduce((total, position) => total + values[state[position]], 0));
+    }
+
+    function isSolvedLevelState(values, levelTargets, state) {
+      return sumsForState(values, state).every((sum, index) => sum === levelTargets[index]);
+    }
+
+    function createLevel(level) {
+      const limit = levelLimit(level);
+      const rng = seededRandom(0x51f15e + level * 0x9e3779b1);
+
+      for (let attempt = 0; attempt < 50; attempt += 1) {
+        const values = makeLevelValues(limit, rng);
+        const levelTargets = sumsForState(values, Array.from({ length: 16 }, (_, index) => index));
+        const levelSolution = makeSolution(level, rng);
+        let startPositions = Array.from({ length: 16 }, (_, index) => index);
+
+        for (let index = levelSolution.length - 1; index >= 0; index -= 1) {
+          startPositions = applyInverseMoveToPositions(startPositions, levelSolution[index]);
+        }
+
+        const startSums = sumsForState(values, startPositions);
+        const solvedAtStart = startSums.filter((sum, index) => sum === levelTargets[index]).length;
+
+        if (!isSolvedLevelState(values, levelTargets, startPositions) && solvedAtStart <= 3) {
+          return {
+            level,
+            limit,
+            values,
+            targets: levelTargets,
+            solution: levelSolution,
+            startPositions
+          };
+        }
+      }
+
+      throw new Error(`第 ${level} 关生成失败`);
+    }
+
+    function loadLevel(level) {
+      currentLevel = Math.max(1,Math.min(99,level));
+      currentPuzzle = createLevel(currentLevel);
+      resetGame();
+    }
+
+    window.GGAME_APPLY_LEVEL=level=>loadLevel(level);
+
+    function toPercent(point) {
+      const margin = 8;
+      const span = 84;
+      return {
+        left: `${margin + (point[0] / 6) * span}%`,
+        top: `${margin + (point[1] / 6) * span}%`
+      };
+    }
+
+    function padSum(index) {
+      return cycles[index].reduce((total, position) => {
+        const tokenId = positionTokens[position];
+        return total + tokens[tokenId].value;
+      }, 0);
+    }
+
+    function formatTime(totalSeconds) {
+      const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+      const seconds = String(totalSeconds % 60).padStart(2, "0");
+      return `${minutes}:${seconds}`;
+    }
+
+    function startTimer() {
+      if (startedAt) return;
+      startedAt = Date.now();
+      timerId = window.setInterval(() => {
+        timerEl.textContent = formatTime(Math.floor((Date.now() - startedAt) / 1000));
+      }, 250);
+    }
+
+    function stopTimer() {
+      if (timerId) {
+        window.clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function getAudioContext() {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return null;
+      if (!audioContext) {
+        audioContext = new AudioContext();
+      }
+      if (audioContext.state === "suspended") {
+        audioContext.resume();
+      }
+      return audioContext;
+    }
+
+    function startBgm() {
+      if (!soundOn) return;
+      if (!bgmAudio) {
+        bgmAudio = new Audio(BGM_URL);
+        bgmAudio.loop = true;
+        bgmAudio.preload = "auto";
+        bgmAudio.volume = .24;
+      }
+      syncAudioState();
+      bgmAudio.play().then(() => {
+        bgmStarted = true;
+        syncAudioState();
+      }).catch(() => {
+        bgmStarted = false;
+        syncAudioState();
+        showToast("再点一下“音乐”开启背景音乐。");
+      });
+    }
+
+    function stopBgm() {
+      if (bgmAudio) {
+        bgmAudio.pause();
+      }
+      bgmStarted = false;
+      syncAudioState();
+    }
+
+    function setSoundButton() {
+      const button = document.getElementById("soundBtn");
+      button.textContent = soundOn ? "音乐" : "静音";
+      syncAudioState();
+    }
+
+    function syncAudioState() {
+      document.body.dataset.soundOn = soundOn ? "1" : "0";
+      document.body.dataset.bgmStarted = bgmStarted ? "1" : "0";
+      document.body.dataset.bgmPaused = bgmAudio && !bgmAudio.paused ? "0" : "1";
+      document.body.dataset.bgmReadyState = bgmAudio ? String(bgmAudio.readyState) : "0";
+      document.body.dataset.bgmSrc = bgmAudio ? (bgmAudio.currentSrc || bgmAudio.src) : "";
+      document.body.dataset.bgmElement = bgmAudio ? "1" : "0";
+      document.body.dataset.audioContextState = audioContext ? audioContext.state : "";
+    }
+
+    function readAudioState() {
+      return {
+        soundOn,
+        bgmStarted,
+        bgmSrc: bgmAudio ? (bgmAudio.currentSrc || bgmAudio.src) : "",
+        bgmPaused: bgmAudio ? bgmAudio.paused : true,
+        bgmReadyState: bgmAudio ? bgmAudio.readyState : 0,
+        bgmCurrentTime: bgmAudio ? Number(bgmAudio.currentTime.toFixed(2)) : 0,
+        bgmVolume: bgmAudio ? bgmAudio.volume : 0,
+        audioContextState: audioContext ? audioContext.state : ""
+      };
+    }
+
+    window.__rotationArrayAudioState = readAudioState;
+
+    function playTone(type = "move") {
+      if (!soundOn) return;
+      const context = getAudioContext();
+      if (!context) return;
+      if (type === "win") {
+        playCuteNotes([523.25, 659.25, 783.99, 1046.5], .12, .08);
+        return;
+      }
+      playBubblePop();
+      playCuteNotes([620 + Math.random() * 40, 820 + Math.random() * 60], .07, .035);
+      window.setTimeout(() => playCuteNotes([1040 + Math.random() * 80], .055, .025), 55);
+    }
+
+    function playCuteNotes(frequencies, duration, volume) {
+      const context = getAudioContext();
+      if (!context) return;
+      const baseTime = context.currentTime;
+      frequencies.forEach((frequency, index) => {
+        const start = baseTime + index * duration * .72;
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = index % 2 ? "triangle" : "sine";
+        oscillator.frequency.setValueAtTime(frequency, start);
+        oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.08, start + duration * .6);
+        gain.gain.setValueAtTime(.001, start);
+        gain.gain.exponentialRampToValueAtTime(volume, start + .01);
+        gain.gain.exponentialRampToValueAtTime(.001, start + duration);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(start);
+        oscillator.stop(start + duration + .02);
+      });
+    }
+
+    function playBubblePop() {
+      if (!soundOn) return;
+      const context = getAudioContext();
+      if (!context) return;
+      const now = context.currentTime;
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(360, now);
+      oscillator.frequency.exponentialRampToValueAtTime(760, now + .08);
+      gain.gain.setValueAtTime(.001, now);
+      gain.gain.exponentialRampToValueAtTime(.018, now + .012);
+      gain.gain.exponentialRampToValueAtTime(.001, now + .09);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start(now);
+      oscillator.stop(now + .1);
+    }
+
+    function renderStaticBoard() {
+      board.innerHTML = "";
+
+      padPoints.forEach((point) => {
+        const ring = document.createElement("div");
+        ring.className = "ring";
+        const percent = toPercent(point);
+        ring.style.left = percent.left;
+        ring.style.top = percent.top;
+        board.appendChild(ring);
+      });
+
+      padPoints.forEach((point, index) => {
+        const pad = document.createElement("button");
+        pad.className = "pad";
+        pad.type = "button";
+        pad.setAttribute("aria-label", `旋转第 ${index + 1} 区`);
+        pad.dataset.index = String(index);
+        const percent = toPercent(point);
+        pad.style.left = percent.left;
+        pad.style.top = percent.top;
+        pad.innerHTML = `
+          <span class="diamond" aria-hidden="true">
+            <span class="live-half"></span>
+            <span class="goal-half"></span>
+          </span>
+          <span class="pad-text" aria-hidden="true">
+            <span class="current">0</span>
+            <span class="target">0</span>
+          </span>
+          <span class="pad-index">${index + 1}</span>
+        `;
+        pad.addEventListener("click", () => rotate(index));
+        board.appendChild(pad);
+      });
+
+      Array.from({ length: 16 }).forEach((_, tokenId) => {
+        const ball = document.createElement("div");
+        ball.className = "ball";
+        ball.dataset.token = String(tokenId);
+        ball.textContent = "0";
+        board.appendChild(ball);
+      });
+    }
+
+    function renderBoard() {
+      positionTokens.forEach((tokenId, position) => {
+        const ball = board.querySelector(`.ball[data-token="${tokenId}"]`);
+        const percent = toPercent(gridPoints[position]);
+        ball.textContent = tokens[tokenId].value;
+        ball.style.left = percent.left;
+        ball.style.top = percent.top;
+      });
+
+      let solved = 0;
+      cycles.forEach((_, index) => {
+        const sum = padSum(index);
+        const pad = board.querySelector(`.pad[data-index="${index}"]`);
+        pad.querySelector(".current").textContent = sum;
+        pad.querySelector(".target").textContent = targets[index];
+        const isSolved = sum === targets[index];
+        pad.classList.toggle("solved", isSolved);
+        if (isSolved) solved += 1;
+      });
+
+      solvedCountEl.textContent = `${solved}/9`;
+      levelLabelEl.textContent = String(currentLevel);
+      limitLabelEl.textContent = `≤${currentPuzzle.limit}`;
+      referenceMovesEl.textContent = String(solution.length);
+      progressFill.style.width = `${(solved / 9) * 100}%`;
+      moveCountEl.textContent = String(history.length);
+      renderHistory();
+      document.getElementById("undoBtn").disabled = busy || history.length === 0;
+
+      if (solved === 9) {
+        win();
+      }
+    }
+
+    function renderHistory() {
+      historyList.innerHTML = "";
+      if (!history.length) {
+        const empty = document.createElement("span");
+        empty.className = "empty-history";
+        empty.textContent = "还没有旋转。";
+        historyList.appendChild(empty);
+        return;
+      }
+      history.forEach((move) => {
+        const chip = document.createElement("span");
+        chip.className = "move-chip";
+        chip.textContent = move + 1;
+        historyList.appendChild(chip);
+      });
+      historyList.scrollTop = historyList.scrollHeight;
+    }
+
+    function rotate(index, options = {}) {
+      if (welcomeMask && !welcomeMask.classList.contains("hide")) return;
+      if (busy || victory.classList.contains("show")) return;
+      if (!options.silentStart) startTimer();
+      busy = true;
+      const movingPositions = cycles[index];
+      const before = positionTokens.slice();
+      const [north, east, south, west] = movingPositions;
+      positionTokens[east] = before[north];
+      positionTokens[south] = before[east];
+      positionTokens[west] = before[south];
+      positionTokens[north] = before[west];
+      history.push(index);
+      markMoving(movingPositions);
+      flashPad(index);
+      playTone();
+      renderBoard();
+      window.setTimeout(() => {
+        markMoving([]);
+        busy = false;
+        renderBoard();
+      }, 285);
+    }
+
+    function inverseRotate(index) {
+      if (busy || !history.length) return;
+      busy = true;
+      const movingPositions = cycles[index];
+      const before = positionTokens.slice();
+      const [north, east, south, west] = movingPositions;
+      positionTokens[north] = before[east];
+      positionTokens[east] = before[south];
+      positionTokens[south] = before[west];
+      positionTokens[west] = before[north];
+      history.pop();
+      markMoving(movingPositions);
+      flashPad(index);
+      playTone();
+      renderBoard();
+      window.setTimeout(() => {
+        markMoving([]);
+        busy = false;
+        renderBoard();
+      }, 285);
+    }
+
+    function markMoving(positions) {
+      const movingTokens = new Set(positions.map((position) => positionTokens[position]));
+      board.querySelectorAll(".ball").forEach((ball) => {
+        ball.classList.toggle("moving", movingTokens.has(Number(ball.dataset.token)));
+      });
+    }
+
+    function flashPad(index) {
+      const pad = board.querySelector(`.pad[data-index="${index}"]`);
+      pad.classList.remove("flash");
+      void pad.offsetWidth;
+      pad.classList.add("flash");
+    }
+
+    function win() {
+      stopTimer();
+      busy = true;
+      playTone("win");
+      const seconds = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0;
+      victoryText.textContent = `第 ${currentLevel} 关完成，用时 ${formatTime(seconds)}，共 ${history.length} 步。下一关和值上限 ≤${levelLimit(currentLevel + 1)}。`;
+      victory.classList.add("show");
+    }
+
+    function resetGame() {
+      if (!currentPuzzle) {
+        currentPuzzle = createLevel(currentLevel);
+      }
+      stopTimer();
+      targets = currentPuzzle.targets.slice();
+      solution = currentPuzzle.solution.slice();
+      tokens = currentPuzzle.values.map((value, id) => ({ id, value }));
+      positionTokens = currentPuzzle.startPositions.slice();
+      history = [];
+      startedAt = null;
+      busy = false;
+      autoPlaying = false;
+      timerEl.textContent = "00:00";
+      victory.classList.remove("show");
+      hintLine.textContent = `第 ${currentLevel} 关：所有区域和值都在 ${currentPuzzle.limit} 以内。`;
+      renderBoard();
+    }
+
+    function stateKey() {
+      return positionTokens.join(",");
+    }
+
+    function applyMoveToState(state, move) {
+      return applyMoveToPositions(state, move);
+    }
+
+    function isSolvedState(state) {
+      return cycles.every((cycle, index) => {
+        const sum = cycle.reduce((total, position) => total + tokens[state[position]].value, 0);
+        return sum === targets[index];
+      });
+    }
+
+    function findHint() {
+      const current = positionTokens.slice();
+      if (isSolvedState(current)) return null;
+
+      const queue = [{ state: current, path: [] }];
+      const seen = new Set([stateKey()]);
+      const maxDepth = 6;
+      let cursor = 0;
+
+      while (cursor < queue.length) {
+        const node = queue[cursor++];
+        if (node.path.length >= maxDepth) continue;
+
+        for (let move = 0; move < cycles.length; move += 1) {
+          if (node.path.length >= 3 && node.path.slice(-3).every((item) => item === move)) {
+            continue;
+          }
+          const next = applyMoveToState(node.state, move);
+          const key = next.join(",");
+          if (seen.has(key)) continue;
+          const path = node.path.concat(move);
+          if (isSolvedState(next)) return path[0];
+          seen.add(key);
+          queue.push({ state: next, path });
+        }
+      }
+
+      const matchedPrefix = history.every((move, index) => solution[index] === move);
+      if (matchedPrefix && history.length < solution.length) {
+        return solution[history.length];
+      }
+
+      return bestGreedyMove();
+    }
+
+    function bestGreedyMove() {
+      const score = (state) => cycles.reduce((total, cycle, index) => {
+        const sum = cycle.reduce((value, position) => value + tokens[state[position]].value, 0);
+        return total + Math.abs(sum - targets[index]);
+      }, 0);
+
+      let bestMove = 0;
+      let bestScore = Infinity;
+      for (let move = 0; move < cycles.length; move += 1) {
+        const next = applyMoveToState(positionTokens, move);
+        const value = score(next);
+        if (value < bestScore) {
+          bestScore = value;
+          bestMove = move;
+        }
+      }
+      return bestMove;
+    }
+
+    async function autoPlay() {
+      if (welcomeMask && !welcomeMask.classList.contains("hide")) return;
+      if (autoPlaying || busy || victory.classList.contains("show")) return;
+      autoPlaying = true;
+      startTimer();
+
+      const matchedPrefix = history.every((move, index) => solution[index] === move);
+      if (!matchedPrefix) {
+        showToast("演示从本关初始局面开始。");
+        resetGame();
+        await wait(180);
+        startTimer();
+      }
+
+      for (let index = history.length; index < solution.length; index += 1) {
+        if (!autoPlaying || victory.classList.contains("show")) break;
+        rotate(solution[index], { silentStart: true });
+        await wait(380);
+      }
+      autoPlaying = false;
+    }
+
+    function wait(ms) {
+      return new Promise((resolve) => window.setTimeout(resolve, ms));
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("show");
+      window.clearTimeout(toastId);
+      toastId = window.setTimeout(() => toast.classList.remove("show"), 1700);
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", () => resetGame());
+    document.getElementById("newGameBtn").addEventListener("click", () => {
+      loadLevel(Math.min(99,currentLevel + 1));
+      showToast(`进入第 ${currentLevel} 关，和值上限 ≤${currentPuzzle.limit}。`);
+    });
+    document.getElementById("playAgainBtn").addEventListener("click", () => {
+      loadLevel(Math.min(99,currentLevel + 1));
+    });
+    document.getElementById("undoBtn").addEventListener("click", () => {
+      if (!history.length) return;
+      inverseRotate(history[history.length - 1]);
+    });
+    document.getElementById("hintBtn").addEventListener("click", () => {
+      if (busy) return;
+      const move = findHint();
+      if (move === null) {
+        hintLine.textContent = "已经全部达成目标。";
+        return;
+      }
+      hintLine.textContent = `建议下一步旋转 ${move + 1} 号区域。`;
+      flashPad(move);
+    });
+    document.getElementById("autoBtn").addEventListener("click", () => autoPlay());
+    document.getElementById("soundBtn").addEventListener("click", () => {
+      if (soundOn && (!bgmAudio || bgmAudio.paused)) {
+        startBgm();
+        playBubblePop();
+        return;
+      }
+      soundOn = !soundOn;
+      if (soundOn) {
+        setSoundButton();
+        startBgm();
+        playBubblePop();
+      } else {
+        stopBgm();
+        setSoundButton();
+      }
+    });
+    welcomeStart.addEventListener("click", () => {
+      getAudioContext();
+      startBgm();
+      welcomeMask.classList.add("hide");
+      window.setTimeout(() => {
+        welcomeMask.style.display = "none";
+      }, 520);
+      playTone("win");
+    });
+
+    window.addEventListener("keydown", (event) => {
+      const key = Number(event.key);
+      if (key >= 1 && key <= 9) {
+        rotate(key - 1);
+      }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        if (history.length) inverseRotate(history[history.length - 1]);
+      }
+    });
+
+    renderStaticBoard();
+    setSoundButton();
+    resetGame();
+  </script>
+<script id="touchGuardScript">
+(function(){
+  const allowText = 'input, textarea, [contenteditable="true"]';
+  const isAllowed = target => {
+    const el = target && target.nodeType === 1 ? target : target && target.parentElement;
+    return !!(el && el.closest && el.closest(allowText));
+  };
+  ['selectstart','dragstart','contextmenu'].forEach(type => {
+    document.addEventListener(type, event => {
+      if(!isAllowed(event.target)) event.preventDefault();
+    }, {passive:false});
+  });
+})();
+</script>
+<script id="hubReturnScript">
+(function(){
+  if(document.getElementById('hubReturnBtn')) return;
+  function hubHref(){
+    const url = new URL(location.href);
+    const parts = url.pathname.split('/');
+    const decoded = parts.map(part => {
+      try{return decodeURIComponent(part);}catch(e){return part;}
+    });
+    const markers = ['G-Game-发布版','g-game-hub','写程序'];
+    let pivot = -1;
+    markers.forEach(marker => {
+      const idx = decoded.lastIndexOf(marker);
+      if(idx > pivot) pivot = idx;
+    });
+    if(pivot >= 0){
+      url.pathname = parts.slice(0, pivot + 1).join('/') + '/项目/GGame/GGame二维游戏大厅/';
+      url.search = '?v=return-hub';
+      url.hash = '';
+      return url.href;
+    }
+    return new URL('../../../GGame二维游戏大厅/?v=return-hub', location.href).href;
+  }
+  function mount(){
+    if(!document.body) return;
+    const link = document.createElement('a');
+    link.id = 'hubReturnBtn';
+    link.href = hubHref();
+    link.target = '_top';
+    link.textContent = '返回大厅';
+    link.setAttribute('aria-label', '返回大厅');
+    document.body.appendChild(link);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount, {once:true});
+  else mount();
+})();
+</script>
+<script src="../ggame-level-system.js"></script>
+<script src="../ggame-exit-control.js"></script>
+</body>
+</html>
