@@ -458,7 +458,7 @@ function updateMusicButton(on){
   btn.textContent=on?'🔇 关音乐':'🎵 开音乐';
   btn.style.opacity=on?'0.75':'1';
 }
-function startMusic(){
+function startMusic(){ return; // 海选版不播放背景音乐
   const ac=getAC(); if(ac.state==='suspended')ac.resume();
   const audio=getBgm();
   musicPlaying=true;
@@ -1020,6 +1020,6 @@ function launchGame(e){
 })();
 </script>
 
-<script src="../ggame-exit-control.js"></script>
+<script src="../ggame-exit-control.js?v=20261027c"></script>
 </body>
 </html>

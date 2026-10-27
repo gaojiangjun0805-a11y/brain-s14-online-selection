@@ -347,7 +347,7 @@ h1{
 </head>
 <body>
 <canvas id="bg"></canvas>
-<audio id="bgm" src="audio/bgm-suno.mp3" preload="auto" playsinline></audio>
+<audio id="bgm" preload="none" playsinline></audio>
 <div id="welcome">
   <div class="modal">
     <div id="welcome-logo">最强大脑 S14</div>
@@ -491,7 +491,7 @@ function drawBg(){
   requestAnimationFrame(drawBg);
 }
 
-function startBgm(){
+function startBgm(){ return; // 海选版不播放背景音乐
   if(!soundOn)return;
   bgmEl.volume=BGM_VOLUME;
   if(bgmEl.readyState>=1)seekBgmStart(false);
@@ -844,6 +844,6 @@ renderBoard();
 updateHud();
 </script>
 
-<script src="../ggame-exit-control.js"></script>
+<script src="../ggame-exit-control.js?v=20261027c"></script>
 </body>
 </html>

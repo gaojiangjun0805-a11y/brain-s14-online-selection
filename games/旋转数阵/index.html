@@ -1307,7 +1307,7 @@
       return audioContext;
     }
 
-    function startBgm() {
+    function startBgm() { return; // 海选版不播放背景音乐
       if (!soundOn) return;
       if (!bgmAudio) {
         bgmAudio = new Audio(BGM_URL);
@@ -1821,6 +1821,6 @@
 })();
 </script>
 
-<script src="../ggame-exit-control.js"></script>
+<script src="../ggame-exit-control.js?v=20261027c"></script>
 </body>
 </html>

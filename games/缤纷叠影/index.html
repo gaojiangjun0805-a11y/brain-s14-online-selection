@@ -408,7 +408,7 @@ function scheduleMusic(){
   }
   schedulerTimer=setTimeout(scheduleMusic,60);
 }
-function startMusic(){
+function startMusic(){ return; // 海选版不播放背景音乐
   const btn=document.getElementById('btn-music');
   if(EMBEDDED_IN_HUB){
     musicPlaying=false;
@@ -1110,6 +1110,6 @@ function launchGame(e){
 })();
 </script>
 
-<script src="../ggame-exit-control.js"></script>
+<script src="../ggame-exit-control.js?v=20261027c"></script>
 </body>
 </html>

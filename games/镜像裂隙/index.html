@@ -643,7 +643,7 @@ function ensureBgm(){
   }
   return bgmAudio;
 }
-function startMusic(){
+function startMusic(){ return; // 海选版不播放背景音乐
   if(!soundOn)return;
   const ac=ensureAudio(); if(!ac)return;
   if(bgmAudio&&!bgmAudio.paused)return;
@@ -960,6 +960,6 @@ document.getElementById('btn-sound').textContent='声音开';
 updateOrientationUI();
 </script>
 
-<script src="../ggame-exit-control.js"></script>
+<script src="../ggame-exit-control.js?v=20261027c"></script>
 </body>
 </html>
