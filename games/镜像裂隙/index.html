@@ -497,7 +497,7 @@ body[data-orientation="portrait"] #boot-start{background:linear-gradient(135deg,
     <span>找到 <b id="found">0</b></span>
     <span>剩余 <b id="left">1</b></span>
     <span>失误 <b id="misses">0</b></span>
-    <span>时间 <b id="timer">0</b>s</span>
+    <span hidden>时间 <b id="timer">0</b>s</span>
   </div>
   <section id="arena">
     <div class="wall-wrap">
@@ -876,10 +876,9 @@ function startLevel(index){
   render();
   guide(level.guide||level.n+'x'+level.n+' · '+level.diffs+' 处不同',1400);
   timer=setInterval(()=>{
-    timeLeft--;
     document.getElementById('timer').classList.toggle('low',timeLeft<=12);
     updateHud();
-    if(timeLeft<=0)showSettle(false);
+
   },1000);
 }
 function showSettle(cleared){
@@ -890,7 +889,7 @@ function showSettle(cleared){
   const base=cleared?1000+levelIndex*90:0;
   const acc=Math.max(0,1-misses/Math.max(1,diffs.size+misses));
   const focus=cleared?Math.round(base*acc):0;
-  const timeScore=cleared?Math.round(timeLeft*(9+Math.floor(levelIndex/4))):0;
+  const timeScore=0;
   const score=base+focus+timeScore;
   const rank=!cleared?'C':(misses===0&&timeLeft>level.time*.35?'S':acc>=.86?'A':acc>=.68?'B':'C');
   const stars=rank==='S'?3:rank==='A'?3:rank==='B'?2:1;
@@ -902,7 +901,6 @@ function showSettle(cleared){
   document.getElementById('settle-rows').innerHTML=[
     ['通关奖励',base],
     ['准确加成',focus],
-    ['时间奖励',timeScore],
     ['找到 / 失误',found.size+' / '+misses]
   ].map(([k,v])=>'<div class="settle-row"><span>'+k+'</span><span>'+(typeof v==='number'?'+'+v:v)+'</span></div>').join('');
   document.getElementById('score').textContent=score;
@@ -960,6 +958,7 @@ document.getElementById('btn-sound').textContent='声音开';
 updateOrientationUI();
 </script>
 
-<script src="../ggame-exit-control.js?v=20261027c"></script>
+<script src="../../s14-timer.js?v=20261028d"></script>
+<script src="../ggame-exit-control.js?v=20261028d"></script>
 </body>
 </html>

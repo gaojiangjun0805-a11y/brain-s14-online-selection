@@ -243,7 +243,7 @@ button:disabled{ opacity:0.3; pointer-events:none; }
   <div id="hud">
     🪭 <b id="moves">0</b> 折 &nbsp;·&nbsp;
     🎯 <b id="par">—</b> &nbsp;·&nbsp;
-    ⏱ <b id="timer">0</b>s &nbsp;·&nbsp;
+    <b id="timer" hidden>0</b>
     ✅ <b id="progress">0</b>
   </div>
 
@@ -506,7 +506,7 @@ const DIFF_CONFIG={
   5:{N:5, colors:4, K:6, allowDiag:true,  timeLimit:290, base:4000, timeRate:7},
 };
 const MAX_DIFF=5;
-let cfg=DIFF_CONFIG[5], curDiff=5;
+let cfg=DIFF_CONFIG[4], curDiff=4;
 let N_=0, K_=0;
 let board=null, target=null, initial=null;   // Uint8Array, 长度 N*N*4
 let boardStack=[];                            // 撤销栈
@@ -916,9 +916,9 @@ function demoSolve(){
 function startTimer(){
   timerEl.textContent=timeLeft; timerEl.classList.remove('low');
   timerID=setInterval(()=>{
-    timeLeft--; timerEl.textContent=timeLeft;
+    timerEl.textContent=timeLeft;
     timerEl.classList.toggle('low',timeLeft<=15);
-    if(timeLeft<=0){ clearInterval(timerID); timerID=null; loseGame(); }
+
   },1000);
 }
 function winGame(){
@@ -946,7 +946,7 @@ function rankOf(cleared){
 function showSettle(cleared){
   clearInterval(timerID); timerID=null;
   const clearBonus=cleared?cfg.base:0;
-  const timeBonus=cleared?Math.round(timeLeft*cfg.timeRate):0;
+  const timeBonus=0;
   let eff=(cleared&&!demoUsed)?Math.max(0,Math.round((par/Math.max(1,moves))*cfg.base)):0;
   if(eff>0 && hintCount>0) eff=Math.round(eff*Math.max(0.3,1-0.12*hintCount));
   const finalScore=clearBonus+timeBonus+eff;
@@ -961,7 +961,6 @@ function showSettle(cleared){
   const rows=[
     ['🏁 通关奖励',clearBonus],
     [demoUsed?'🎯 效率加成 (用演示，作废)':(hintCount>0?('🎯 效率加成 ('+moves+'/'+par+'折·提示×'+hintCount+')'):('🎯 效率加成 ('+moves+'/'+par+'折)')),eff],
-    ['⏱ 时间奖励 (剩'+(cleared?timeLeft:0)+'s)',timeBonus],
   ];
   document.getElementById('settle-rows').innerHTML=rows.map(([k,v])=>`<div class="settle-row"><span>${k}</span><span>${v>0?'+':''}${v}</span></div>`).join('');
   const key='cfdy_best_'+curDiff;
@@ -1110,6 +1109,7 @@ function launchGame(e){
 })();
 </script>
 
-<script src="../ggame-exit-control.js?v=20261027c"></script>
+<script src="../../s14-timer.js?v=20261028d"></script>
+<script src="../ggame-exit-control.js?v=20261028d"></script>
 </body>
 </html>

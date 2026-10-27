@@ -995,7 +995,7 @@
           <span>步数</span>
           <strong id="moveCount">0</strong>
         </div>
-        <div class="metric">
+        <div class="metric" hidden>
           <span>用时</span>
           <strong id="timer">00:00</strong>
         </div>
@@ -1003,7 +1003,7 @@
           <span>完成</span>
           <strong id="solvedCount">0/9</strong>
         </div>
-        <div class="metric">
+        <div class="metric" hidden>
           <span>关卡</span>
           <strong id="levelLabel">1</strong>
         </div>
@@ -1108,7 +1108,7 @@
     let positionTokens = [];
     let targets = [];
     let solution = [];
-    let currentLevel = 12;
+    let currentLevel = 4;
     let currentPuzzle = null;
     let history = [];
     let startedAt = null;
@@ -1251,7 +1251,7 @@
     }
 
     function loadLevel(level) {
-      currentLevel = 12;
+      currentLevel = 4;
       currentPuzzle = createLevel(currentLevel);
       resetGame();
     }
@@ -1580,7 +1580,7 @@
       busy = true;
       playTone("win");
       const seconds = startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0;
-      victoryText.textContent = `挑战完成，用时 ${formatTime(seconds)}，共 ${history.length} 步。`;
+      victoryText.textContent = `挑战完成，共 ${history.length} 步。`;
       victory.classList.add("show");
     }
 
@@ -1707,11 +1707,11 @@
 
     document.getElementById("resetBtn").addEventListener("click", () => resetGame());
     document.getElementById("newGameBtn").addEventListener("click", () => {
-      loadLevel(12);
+      loadLevel(4);
       showToast(`进入第 ${currentLevel} 关，和值上限 ≤${currentPuzzle.limit}。`);
     });
     document.getElementById("playAgainBtn").addEventListener("click", () => {
-      loadLevel(12);
+      loadLevel(4);
     });
     document.getElementById("undoBtn").addEventListener("click", () => {
       if (!history.length) return;
@@ -1821,6 +1821,7 @@
 })();
 </script>
 
-<script src="../ggame-exit-control.js?v=20261027c"></script>
+<script src="../../s14-timer.js?v=20261028d"></script>
+<script src="../ggame-exit-control.js?v=20261028d"></script>
 </body>
 </html>

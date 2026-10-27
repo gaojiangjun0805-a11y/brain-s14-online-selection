@@ -27,7 +27,7 @@
       #s14-rules::backdrop{background:#02050bc9}#s14-rules h2{margin:0 0 12px;font-size:21px}#s14-rules p{margin:0 0 18px;color:#d0dbe6}#s14-rules button{padding:9px 22px;border:0;border-radius:8px;background:#b6ebfb;color:#10202a;font-weight:700;cursor:pointer}
       @media(max-width:360px){.s14-tools button,.s14-tools a{min-width:0;flex:1}}
     `;document.head.appendChild(style);
-    const back=document.createElement('a');back.className='s14-back';back.href='../../index.html?v=20261027c';back.textContent='←';back.setAttribute('aria-label','返回海选项目列表');document.body.appendChild(back);
+    const back=document.createElement('a');back.className='s14-back';back.href='../../index.html?v=20261028d';back.textContent='←';back.setAttribute('aria-label','返回海选项目列表');document.body.appendChild(back);
     const bar=document.createElement('nav');bar.className='s14-tools';bar.setAttribute('aria-label','挑战操作');
     const home=document.createElement('a');home.href=back.href;home.textContent='返回';home.setAttribute('aria-label','返回海选项目列表');
     const clear=document.createElement('button');clear.type='button';clear.textContent='重置';clear.addEventListener('click',reset);
@@ -35,7 +35,7 @@
     bar.append(home,clear,info);document.body.appendChild(bar);
     const dialog=document.createElement('dialog');dialog.id='s14-rules';dialog.setAttribute('aria-label','规则说明');
     const title=document.createElement('h2');title.textContent='规则说明';const text=document.createElement('p');text.textContent=rules[name]||'按照屏幕提示完成挑战。';
-    const note=document.createElement('p');note.textContent='查看规则时，挑战计时继续。';note.style.fontSize='13px';
+    const note=document.createElement('p');note.textContent='查看规则时，45分钟总计时继续。';note.style.fontSize='13px';
     const close=document.createElement('button');close.type='button';close.textContent='关闭';close.setAttribute('aria-label','关闭规则');close.addEventListener('click',()=>dialog.close());
     dialog.append(title,text,note,close);document.body.appendChild(dialog);info.addEventListener('click',()=>dialog.showModal());
     const start=document.querySelector('#welcome-start,#boot-start');if(start){const activate=()=>document.body.classList.add('s14-active');start.addEventListener('click',activate);start.addEventListener('touchend',activate);}

@@ -374,7 +374,7 @@ h1{
   <div id="hud">
     <span>点击 <b id="moves">0</b></span>
     <span>失误 <b id="misses">0</b></span>
-    <span>时间 <b id="timer">0</b>s</span>
+    <span hidden>时间 <b id="timer">0</b>s</span>
     <span>进度 <b id="progress">0/0</b></span>
   </div>
   <section id="board-shell">
@@ -407,7 +407,7 @@ h1{
   </div>
 </div>
 <script>
-const LEVELS=[{name:'高难挑战',n:8,count:16,preview:1180,width:1.05,time:80,mode:'double',seed:5314120,note:'8×8 盘面，双快门扫描，复原 16 个黑格。'}];
+const LEVELS=[{name:'挑战题',n:6,count:8,preview:1800,width:1.5,time:80,mode:'diagonal',seed:5314120,note:'6×6 盘面，快门扫描，复原 8 个黑格。'}];
 
 const boardEl=document.getElementById('board');
 const shutterEl=document.getElementById('shutter');
@@ -689,10 +689,9 @@ function startTimer(){
   updateHud();
   timer=setInterval(()=>{
     if(phase==='preview')return;
-    timeLeft--;
     document.getElementById('timer').classList.toggle('low',timeLeft<=10);
     updateHud();
-    if(timeLeft<=0)showSettle(false);
+
   },1000);
 }
 function onCell(e){
@@ -760,7 +759,7 @@ function showSettle(cleared){
   phase='settle';
   const accuracy=Math.max(0,1-misses/Math.max(1,moves));
   const base=cleared?900+levelIndex*95:0;
-  const timeScore=cleared?Math.round(timeLeft*(8+Math.floor(levelIndex/4))):0;
+  const timeScore=0;
   const focus=cleared?Math.round(base*accuracy)-replayCount*120:0;
   const score=Math.max(0,base+timeScore+focus);
   const rank=!cleared?'C':(misses===0&&replayCount===0&&timeLeft>level.time*.35?'S':accuracy>=.86?'A':accuracy>=.65?'B':'C');
@@ -773,7 +772,6 @@ function showSettle(cleared){
   document.getElementById('settle-rows').innerHTML=[
     ['通关奖励',base],
     ['专注加成',focus],
-    ['时间奖励',timeScore],
     ['重看 / 失误',replayCount+' / '+misses]
   ].map(([k,v])=>'<div class="settle-row"><span>'+k+'</span><span>'+(typeof v==='number'?(v>=0?'+':'')+v:v)+'</span></div>').join('');
   document.getElementById('score').textContent=score;
@@ -844,6 +842,7 @@ renderBoard();
 updateHud();
 </script>
 
-<script src="../ggame-exit-control.js?v=20261027c"></script>
+<script src="../../s14-timer.js?v=20261028d"></script>
+<script src="../ggame-exit-control.js?v=20261028d"></script>
 </body>
 </html>
