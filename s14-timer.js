@@ -29,7 +29,7 @@
     const badge=document.createElement('div');badge.id='s14-overall-timer';badge.setAttribute('role','timer');badge.setAttribute('aria-label','总剩余时间');document.body.appendChild(badge);
     const overlay=document.createElement('section');overlay.id='s14-time-expired';overlay.hidden=true;overlay.setAttribute('role','alert');
     const card=document.createElement('div');card.className='s14-expired-card';const title=document.createElement('h2');title.textContent='总时间已到';const desc=document.createElement('p');desc.textContent='45分钟挑战时间已结束。';card.append(title,desc);
-    if(location.pathname.includes('/games/')){const back=document.createElement('a');back.href='../../index.html?v=20261028d';back.textContent='返回首页';card.appendChild(back)}
+    if(location.pathname.includes('/games/')){const back=document.createElement('a');back.href='../../index.html?v=20261028e';back.textContent='返回首页';card.appendChild(back)}
     overlay.appendChild(card);document.body.appendChild(overlay);render();
   }
   document.addEventListener('click',startCapture,true);document.addEventListener('touchend',startCapture,true);

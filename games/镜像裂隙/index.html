@@ -476,7 +476,7 @@ body[data-orientation="portrait"] #boot-start{background:linear-gradient(135deg,
       <div class="phone"></div>
     </div>
     <div class="boot-hint" id="boot-hint">建议横屏体验，也可直接开始</div>
-    <button id="boot-start" type="button">进入游戏</button>
+    <button id="boot-start" type="button">开始挑战</button>
   </div>
 </div>
 <main id="app">
@@ -831,7 +831,7 @@ function updateOrientationUI(){
   const landscape=isLandscapeView();
   document.body.dataset.orientation=landscape?'landscape':'portrait';
   bootHintEl.textContent=landscape?'横屏已就绪':'建议横屏体验，也可直接开始';
-  bootStartEl.textContent='进入游戏';
+  bootStartEl.textContent='开始挑战';
 }
 function beginGame(){
   if(gameStarted)return;
@@ -958,7 +958,7 @@ document.getElementById('btn-sound').textContent='声音开';
 updateOrientationUI();
 </script>
 
-<script src="../../s14-timer.js?v=20261028d"></script>
-<script src="../ggame-exit-control.js?v=20261028d"></script>
+<script src="../../s14-timer.js?v=20261028e"></script>
+<script src="../ggame-exit-control.js?v=20261028e"></script>
 </body>
 </html>

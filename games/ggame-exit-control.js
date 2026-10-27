@@ -27,7 +27,7 @@
       #s14-rules::backdrop{background:#02050bc9}#s14-rules h2{margin:0 0 12px;font-size:21px}#s14-rules p{margin:0 0 18px;color:#d0dbe6}#s14-rules button{padding:9px 22px;border:0;border-radius:8px;background:#b6ebfb;color:#10202a;font-weight:700;cursor:pointer}
       @media(max-width:360px){.s14-tools button,.s14-tools a{min-width:0;flex:1}}
     `;document.head.appendChild(style);
-    const back=document.createElement('a');back.className='s14-back';back.href='../../index.html?v=20261028d';back.textContent='←';back.setAttribute('aria-label','返回海选项目列表');document.body.appendChild(back);
+    const back=document.createElement('a');back.className='s14-back';back.href='../../index.html?v=20261028e';back.textContent='←';back.setAttribute('aria-label','返回海选项目列表');document.body.appendChild(back);
     const bar=document.createElement('nav');bar.className='s14-tools';bar.setAttribute('aria-label','挑战操作');
     const home=document.createElement('a');home.href=back.href;home.textContent='返回';home.setAttribute('aria-label','返回海选项目列表');
     const clear=document.createElement('button');clear.type='button';clear.textContent='重置';clear.addEventListener('click',reset);
